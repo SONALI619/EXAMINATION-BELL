@@ -17,7 +17,7 @@ const auth = firebase.auth();
 // Firebase Database URL
 const dbURL = "https://examination-bell-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
-// 🔐 PROTECT DASHBOARD
+// PROTECT DASHBOARD
 auth.onAuthStateChanged((user) => {
   if (!user && window.location.pathname.includes("dashboard")) {
     alert("Please login first");
@@ -25,7 +25,7 @@ auth.onAuthStateChanged((user) => {
   }
 });
 
-// 🔑 LOGIN FUNCTION
+// LOGIN FUNCTION
 function login() {
   console.log("Login clicked");
 
@@ -48,7 +48,7 @@ function login() {
     });
 }
 
-// 🕒 SHOW CURRENT TIME
+// SHOW CURRENT TIME
 function updateTime() {
   const now = new Date();
   const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -57,7 +57,7 @@ function updateTime() {
 }
 setInterval(updateTime, 1000);
 
-// 🔔 SET BELL TIME (AUTO)
+// SET BELL TIME (AUTO)
 function setBellTime() {
   const hour = document.getElementById('hour').value;
   const minute = document.getElementById('minute').value;
@@ -81,7 +81,7 @@ function setBellTime() {
   });
 }
 
-// 🔘 MANUAL BELL BUTTON
+// MANUAL BELL BUTTON
 function ringBell() {
   fetch(dbURL + "manualBell.json", {
     method: "PUT",
@@ -95,7 +95,7 @@ function ringBell() {
   });
 }
 
-// 🚪 LOGOUT FUNCTION
+// LOGOUT FUNCTION
 function logout() {
   auth.signOut().then(() => {
     alert("Logged out");
