@@ -57,3 +57,34 @@ button.red {
   align-items: center;
   gap: 10px;
 }
+
+/* 🔥 Schedule Section */
+#scheduleList {
+  text-align: left;
+  margin-top: 10px;
+  padding: 0;
+  list-style: none;
+}
+
+#scheduleList li {
+  padding: 8px;
+  margin: 5px 0;
+  border-radius: 5px;
+  background: #f5f5f5;
+  border-left: 5px solid #2f80ed;
+  font-size: 14px;
+}
+
+/* 🔥 Highlight Next Bell */
+#nextBell {
+  font-weight: bold;
+  font-size: 16px;
+  color: #dc3545;
+}
+
+/* 🔥 Exam Time Display */
+#examTimeDisplay {
+  font-weight: bold;
+  color: #28a745;
+  margin-bottom: 10px;
+}

@@ -9,29 +9,49 @@
 <body>
   <div class="container gray">
     <div class="dashboard-card">
+
       <h2>Exam Bell Dashboard</h2>
 
       <p id="currentTime">Current Time: --:--</p>
 
       <hr>
 
-      <h3>Set Bell Time</h3>
+      <h3>Set Exam Start Time</h3>
+
       <div class="time-input">
-        <input type="number" id="hour" min="0" max="23" placeholder="10">
+        <input type="number" id="hour" min="1" max="12" placeholder="10">
         <span>:</span>
         <input type="number" id="minute" min="0" max="59" placeholder="00">
+
+        <select id="ampm">
+          <option value="AM">AM</option>
+          <option value="PM">PM</option>
+        </select>
       </div>
 
-      <button class="green" onclick="setBellTime()">Set Bell Time</button>
+      <button class="green" onclick="setExamTime()">Set Exam Time</button>
 
       <hr>
-       <button class="red" onclick="ringBell()">Ring Bell Now</button>
-       <button onclick="logout()">Logout</button>
+
+      <!-- 🔥 ONLY ONE SCHEDULE SECTION -->
+      <h3 id="examTimeDisplay">Exam Start: --:--</h3>
+
+      <h3>📅 Upcoming Bells</h3>
+      <ul id="scheduleList"></ul>
+
+      <h3 id="nextBell">⏰ Next Bell: --</h3>
+
+      <hr>
+
+      <button class="red" onclick="ringBell()">Ring Bell Now</button>
+      <button onclick="logout()">Logout</button>
+
     </div>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="script.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
