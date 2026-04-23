@@ -16,24 +16,18 @@
 
       <hr>
 
-      <h3>Set Exam Start Time</h3>
+      <h3>Set Exam Start Time (24-Hour Format)</h3>
 
       <div class="time-input">
-        <input type="number" id="hour" min="1" max="12" placeholder="10">
+        <input type="number" id="hour" min="0" max="23" placeholder="HH (00-23)">
         <span>:</span>
-        <input type="number" id="minute" min="0" max="59" placeholder="00">
-
-        <select id="ampm">
-          <option value="AM">AM</option>
-          <option value="PM">PM</option>
-        </select>
+        <input type="number" id="minute" min="0" max="59" placeholder="MM(00-59)">
       </div>
 
       <button class="green" onclick="setExamTime()">Set Exam Time</button>
 
       <hr>
 
-      <!-- 🔥 ONLY ONE SCHEDULE SECTION -->
       <h3 id="examTimeDisplay">Exam Start: --:--</h3>
 
       <h3>📅 Upcoming Bells</h3>
