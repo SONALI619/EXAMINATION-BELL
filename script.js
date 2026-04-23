@@ -149,48 +149,55 @@ function updateNextBell() {
   const now = new Date();
   const currentMin = now.getHours() * 60 + now.getMinutes();
 
-  db.ref("bellTime").once("value", snapshot => {
+  console.log("Current minutes:", currentMin); // DEBUG
 
-    const time = snapshot.val();
-    if (!time) return;
+  fetch("https://examination-bell-default-rtdb.asia-southeast1.firebasedatabase.app/bellTime.json")
+    .then(res => res.json())
+    .then(time => {
 
-    const [h, m] = time.split(":").map(Number);
-    const base = h * 60 + m;
+      console.log("Fetched time:", time); // DEBUG
 
-    const events = [
-      { name: "Entering Bell", time: base - 15 },
-      { name: "Exam Start", time: base },
-      { name: "1 Hour Complete", time: base + 60 },
-      { name: "2 Hour Complete", time: base + 120 },
-      { name: "Exam End", time: base + 180 }
-    ];
-
-    for (let e of events) {
-
-      if (e.time > currentMin) {
-
-        let hh = Math.floor(e.time / 60);
-        let mm = e.time % 60;
-
-        if (mm < 0) mm += 60;
-        if (hh < 0) hh += 24;
-
-        hh = hh % 24;
-
-        document.getElementById("nextBell").innerText =
-          `${e.name} at ${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
-
+      if (!time) {
+        document.getElementById("nextBell").innerText = "No exam time set ❌";
         return;
       }
-    }
 
-    document.getElementById("nextBell").innerText =
-      "All bells completed ✅";
-  });
+      const [h, m] = time.split(":").map(Number);
+      const base = h * 60 + m;
+
+      const events = [
+        { name: "Entering Bell", time: base - 15 },
+        { name: "Exam Start", time: base },
+        { name: "1 Hour Complete", time: base + 60 },
+        { name: "2 Hour Complete", time: base + 120 },
+        { name: "Exam End", time: base + 180 }
+      ];
+
+      for (let e of events) {
+
+        if (e.time > currentMin) {
+
+          let hh = Math.floor(e.time / 60);
+          let mm = e.time % 60;
+
+          if (mm < 0) mm += 60;
+          if (hh < 0) hh += 24;
+
+          hh = hh % 24;
+
+          const text =
+            `${e.name} at ${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+
+          console.log("Next Bell:", text); // DEBUG
+
+          document.getElementById("nextBell").innerText = text;
+          return;
+        }
+      }
+
+      document.getElementById("nextBell").innerText = "All bells completed ✅";
+    });
 }
-
-setInterval(updateNextBell, 5000);
-
 // ================= MANUAL BELL =================
 function ringBell() {
   fetch("https://examination-bell-default-rtdb.asia-southeast1.firebasedatabase.app/manualBell.json", {
@@ -208,6 +215,8 @@ function ringBell() {
     alert("Error: " + err);
   });
 }
+updateNextBell();       
+setInterval(updateNextBell, 5000);
 
 // ================= LOGOUT =================
 function logout() {
