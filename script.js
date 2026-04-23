@@ -64,19 +64,27 @@ function setExamTime() {
     return;
   }
 
-  hour = parseInt(hour);
-  minute = parseInt(minute);
-
   const time = `${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;
 
-  db.ref("bellTime").set(time)
-    .then(() => {
-      alert("Exam time set: " + time);
+  console.log("Sending time:", time);
 
-      // update UI instantly
-      generateSchedule(hour, minute);
-    })
-    .catch(err => alert(err));
+  fetch("https://examination-bell-default-rtdb.asia-southeast1.firebasedatabase.app/bellTime.json", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(time)
+  })
+  .then(() => {
+    alert("Exam time set: " + time);
+
+    // update UI
+    generateSchedule(parseInt(hour), parseInt(minute));
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Error: " + err);
+  });
 }
 
 // ================= GENERATE SCHEDULE =================
@@ -185,9 +193,20 @@ setInterval(updateNextBell, 5000);
 
 // ================= MANUAL BELL =================
 function ringBell() {
-  db.ref("manualBell").set("ON")
-    .then(() => alert("Bell Triggered 🔔"))
-    .catch(err => alert(err));
+  fetch("https://examination-bell-default-rtdb.asia-southeast1.firebasedatabase.app/manualBell.json", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify("ON")
+  })
+  .then(() => {
+    alert("Bell Triggered 🔔");
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Error: " + err);
+  });
 }
 
 // ================= LOGOUT =================
