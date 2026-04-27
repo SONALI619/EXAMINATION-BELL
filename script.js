@@ -13,6 +13,14 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
+
+// ================= RESET UI =================
+function resetUI() {
+  document.getElementById("scheduleList").innerHTML = "";
+  document.getElementById("nextBell").innerText = "⏰ Next Bell: --";
+  document.getElementById("examTimeDisplay").innerText = "Exam Start: --:--";
+}
+
 // ================= AUTH =================
 auth.onAuthStateChanged((user) => {
   if (!user && window.location.pathname.includes("dashboard")) {
@@ -130,82 +138,104 @@ function generateSchedule(hour, minute) {
 
 // ================= LOAD FROM FIREBASE =================
 function loadExamTime() {
-  db.ref("bellTime").once("value", snapshot => {
+
+  db.ref("bellTime").on("value", (snapshot) => {
 
     const time = snapshot.val();
-    if (!time) return;
+
+    if (!time) {
+      resetUI();
+      return;
+    }
 
     const [h, m] = time.split(":").map(Number);
 
+    if (isNaN(h) || isNaN(m)) {
+      resetUI();
+      return;
+    }
+
     generateSchedule(h, m);
+
+    document.getElementById("examTimeDisplay").innerText =
+      `Exam Start: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
   });
 }
-
-window.onload = loadExamTime;
-
 // ================= NEXT BELL =================
 function updateNextBell() {
 
-  const now = new Date();
-  const currentMin = now.getHours() * 60 + now.getMinutes();
-
-  console.log("Current minutes:", currentMin); // DEBUG
+  const nextBellEl = document.getElementById("nextBell");
 
   fetch("https://examination-bell-default-rtdb.asia-southeast1.firebasedatabase.app/bellTime.json")
     .then(res => res.json())
     .then(time => {
 
-      console.log("Fetched time:", time); // DEBUG
-
       if (!time) {
-        document.getElementById("nextBell").innerText = "No exam time set ❌";
+        nextBellEl.innerText = "⏰ Next Bell: --";
         return;
       }
 
       const [h, m] = time.split(":").map(Number);
-      const base = h * 60 + m;
 
-      const events = [
-        { name: "Entering Bell", time: base - 15 },
-        { name: "Exam Start", time: base },
-        { name: "1 Hour Complete", time: base + 60 },
-        { name: "2 Hour Complete", time: base + 120 },
-        { name: "Exam End", time: base + 180 }
-      ];
-
-      for (let e of events) {
-
-        if (e.time > currentMin) {
-
-          let hh = Math.floor(e.time / 60);
-          let mm = e.time % 60;
-
-          if (mm < 0) mm += 60;
-          if (hh < 0) hh += 24;
-
-          hh = hh % 24;
-
-          const text =
-            `${e.name} at ${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
-
-          console.log("Next Bell:", text); // DEBUG
-
-          document.getElementById("nextBell").innerText = text;
-          return;
-        }
+      if (isNaN(h) || isNaN(m)) {
+        nextBellEl.innerText = "⏰ Next Bell: --";
+        return;
       }
 
-      document.getElementById("nextBell").innerText = "All bells completed ✅";
+      const now = new Date();
+      const currentSec =
+        now.getHours() * 3600 +
+        now.getMinutes() * 60 +
+        now.getSeconds();
+
+      const base = h * 3600 + m * 60;
+
+      const events = [
+        { name: "📢 Entering Bell", offset: -900 },
+        { name: "📝 Exam Start", offset: 0 },
+        { name: "⏱ 1 Hour Complete", offset: 3600 },
+        { name: "⏱ 2 Hour Complete", offset: 7200 },
+        { name: "🏁 Exam End", offset: 10800 }
+      ];
+
+      let nextEvent = null;
+      let minDiff = Infinity;
+
+      events.forEach(e => {
+
+        let eventTime = (base + e.offset + 86400) % 86400;
+        let diff = eventTime - currentSec;
+
+        if (diff < 0) diff += 86400;
+
+        if (diff < minDiff) {
+          minDiff = diff;
+          nextEvent = { ...e, time: eventTime };
+        }
+      });
+
+      if (nextEvent) {
+        const hh = Math.floor(nextEvent.time / 3600);
+        const mm = Math.floor((nextEvent.time % 3600) / 60);
+
+        nextBellEl.innerText =
+          `${nextEvent.name} at ${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+      }
+
+    })
+    .catch(() => {
+      nextBellEl.innerText = "⏰ Next Bell: --";
     });
 }
 // ================= MANUAL BELL =================
 function ringBell() {
+
   fetch("https://examination-bell-default-rtdb.asia-southeast1.firebasedatabase.app/manualBell.json", {
     method: "PUT",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify("ON")
+    body: JSON.stringify("ON")   // 🔥 IMPORTANT
   })
   .then(() => {
     alert("Bell Triggered 🔔");
@@ -214,13 +244,31 @@ function ringBell() {
     console.error(err);
     alert("Error: " + err);
   });
-}
-updateNextBell();       
-setInterval(updateNextBell, 5000);
 
+}
+// ================= RESET BUTTON =================
+function clearExamTime() {
+
+  fetch("https://examination-bell-default-rtdb.asia-southeast1.firebasedatabase.app/bellTime.json", {
+    method: "DELETE"
+  })
+  .then(() => {
+    resetUI();   // instantly clear UI
+  })
+  .catch(err => alert(err));
+}
 // ================= LOGOUT =================
 function logout() {
   auth.signOut().then(() => {
     window.location.href = 'index.html';
   });
 }
+
+// ================= PAGE LOAD =================
+window.onload = function () {
+
+  resetUI();
+  loadExamTime();
+
+  setInterval(updateNextBell, 10000);
+};
