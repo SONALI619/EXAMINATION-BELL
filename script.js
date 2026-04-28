@@ -14,14 +14,14 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 
-// ================= RESET UI =================
+// RESET UI 
 function resetUI() {
   document.getElementById("scheduleList").innerHTML = "";
   document.getElementById("nextBell").innerText = "⏰ Next Bell: --";
   document.getElementById("examTimeDisplay").innerText = "Exam Start: --:--";
 }
 
-// ================= AUTH =================
+// AUTH
 auth.onAuthStateChanged((user) => {
   if (!user && window.location.pathname.includes("dashboard")) {
     alert("Please login first");
@@ -29,7 +29,7 @@ auth.onAuthStateChanged((user) => {
   }
 });
 
-// ================= LOGIN =================
+// LOGIN
 function login() {
   const email = document.getElementById('email-id').value;
   const password = document.getElementById('password').value;
@@ -47,7 +47,7 @@ function login() {
     .catch(err => alert(err.message));
 }
 
-// ================= CURRENT TIME =================
+//CURRENT TIME
 function updateTime() {
   const now = new Date();
 
@@ -62,7 +62,7 @@ function updateTime() {
 }
 setInterval(updateTime, 1000);
 
-// ================= SET EXAM TIME =================
+//SET EXAM TIME
 function setExamTime() {
   let hour = document.getElementById('hour').value;
   let minute = document.getElementById('minute').value;
@@ -95,7 +95,7 @@ function setExamTime() {
   });
 }
 
-// ================= GENERATE SCHEDULE =================
+// GENERATE SCHEDULE 
 function generateSchedule(hour, minute) {
 
   const base = hour * 60 + minute;
@@ -136,7 +136,7 @@ function generateSchedule(hour, minute) {
     `${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;
 }
 
-// ================= LOAD FROM FIREBASE =================
+// LOAD FROM FIREBASE
 function loadExamTime() {
 
   db.ref("bellTime").on("value", (snapshot) => {
@@ -161,7 +161,7 @@ function loadExamTime() {
       `Exam Start: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
   });
 }
-// ================= NEXT BELL =================
+// NEXT BELL
 function updateNextBell() {
 
   const nextBellEl = document.getElementById("nextBell");
@@ -227,7 +227,7 @@ function updateNextBell() {
       nextBellEl.innerText = "⏰ Next Bell: --";
     });
 }
-// ================= MANUAL BELL =================
+// MANUAL BELL 
 function ringBell() {
 
   fetch("https://examination-bell-default-rtdb.asia-southeast1.firebasedatabase.app/manualBell.json", {
@@ -246,7 +246,7 @@ function ringBell() {
   });
 
 }
-// ================= RESET BUTTON =================
+// RESET BUTTON 
 function clearExamTime() {
 
   fetch("https://examination-bell-default-rtdb.asia-southeast1.firebasedatabase.app/bellTime.json", {
@@ -257,14 +257,14 @@ function clearExamTime() {
   })
   .catch(err => alert(err));
 }
-// ================= LOGOUT =================
+// LOGOUT 
 function logout() {
   auth.signOut().then(() => {
     window.location.href = 'index.html';
   });
 }
 
-// ================= PAGE LOAD =================
+// PAGE LOAD
 window.onload = function () {
 
   resetUI();
